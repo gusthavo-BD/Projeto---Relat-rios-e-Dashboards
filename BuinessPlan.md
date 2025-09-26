@@ -2,7 +2,7 @@ Nome do Sistema: DataPulse CRM
 
 Tipo de Sistema: CRM (Customer Relationship Management)
 
-O Projeto consiste em desenvolver um Sistema de CRM com ênfase de dados, voltado para pequenas empresas e médias empresas que precisam organizar clientes e centralizar interações para extrair insigths estrátegicos. Buscamos resolver a falta de visibilidade sobre ciclos de vendas e a dificuldade em transformar dados em decições práticas.
+O Projeto consiste em desenvolver um Sistema de CRM com ênfase de dados, voltado para pequenas empresas e médias barbearias que precisam organizar clientes e centralizar interações para extrair insigths estrátegicos. Buscamos resolver a falta de visibilidade sobre ciclos de vendas e a dificuldade em transformar dados em decições práticas.
 
 O modelo de negócio será baseado em SaaS com planos mensais escaláveis coforme número de usuários e volume de dados, além de serviços complementares como treinamento e suporte. A operação inicial contará com uma equipe enxuta de desenvolvimento, analise de dados e atendimento, utilizando infraestrutura em nuvem para reduzir custos e permitir escalabilidade.
 
