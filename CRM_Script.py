@@ -2,54 +2,80 @@ import streamlit as st
 import pandas as pd
 import mysql.connector
 import matplotlib.pyplot as plt
+from datetime import date
+
+# Conexão com MySQL
 conexao = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="minhasenha",   # coloque sua senha
+    password="admin",   # coloque sua senha
     database="barbearia"
 )
 
 cursor = conexao.cursor()
+
+# ------------------------------
+# Funções CRUD
+# ------------------------------
 def cadastrar_cliente(nome, telefone):
     sql = "INSERT INTO clientes (nome, telefone) VALUES (%s, %s)"
     cursor.execute(sql, (nome, telefone))
     conexao.commit()
     st.success(f"✅ Cliente {nome} cadastrado com sucesso!")
+
+def remover_cliente(cliente_id):
+    sql = "DELETE FROM clientes WHERE id = %s"
+    cursor.execute(sql, (cliente_id,))
+    conexao.commit()
+    st.success(f"🗑️ Cliente removido com sucesso!")
+
 def agendar_servico(cliente_id, servico_id, data):
     sql = "INSERT INTO agendamentos (cliente_id, servico_id, data) VALUES (%s, %s, %s)"
     cursor.execute(sql, (cliente_id, servico_id, data))
     conexao.commit()
     st.success("📅 Agendamento realizado com sucesso!")
-def dashboard_receita():
+
+def dashboard_receita(data_inicio, data_fim):
     sql = """
     SELECT s.nome, COUNT(a.id) AS qtd, SUM(s.preco) AS receita
     FROM agendamentos a
     JOIN servicos s ON a.servico_id = s.id
+    WHERE a.data BETWEEN %s AND %s
     GROUP BY s.id
     """
-    cursor.execute(sql)
+    cursor.execute(sql, (data_inicio, data_fim))
     resultados = cursor.fetchall()
 
-    if  resultados:
+    if resultados:
         servicos = [r[0] for r in resultados]
         qtd = [r[1] for r in resultados]
         receita = [float(r[2]) for r in resultados]
 
+        # Estilo mais bonito
+        plt.style.use("seaborn-v0_8")
+
         # Gráfico de quantidade de serviços
-        fig1, ax1 = plt.subplots()
-        ax1.bar(servicos, qtd, color="skyblue")
-        ax1.set_title("📊 Serviços mais realizados")
+        fig1, ax1 = plt.subplots(figsize=(5,3))
+        ax1.bar(servicos, qtd)
+        ax1.set_title("📊 Serviços mais realizados", fontsize=12, fontweight="bold")
         ax1.set_ylabel("Quantidade")
         st.pyplot(fig1)
 
         # Gráfico de receita por serviço
-        fig2, ax2 = plt.subplots()
-        ax2.bar(servicos, receita, color="green")
-        ax2.set_title("💰 Receita por Serviço")
+        fig2, ax2 = plt.subplots(figsize=(5,3))
+        ax2.bar(servicos, receita)
+        ax2.set_title("💰 Receita por Serviço", fontsize=12, fontweight="bold")
         ax2.set_ylabel("R$ Receita")
         st.pyplot(fig2)
+
+        # Gráfico de Pizza (percentual de serviços)
+        fig3, ax3 = plt.subplots(figsize=(4,4))
+        ax3.pie(qtd, labels=servicos, autopct='%1.1f%%', startangle=90)
+        ax3.set_title("📌 Participação de cada serviço", fontsize=12, fontweight="bold")
+        st.pyplot(fig3)
+
     else:
-        st.info("Nenhum agendamento encontrado para gerar dashboard.")
+        st.info("Nenhum agendamento encontrado nesse período.")
 
 # ------------------------------
 # Layout da aplicação
@@ -57,7 +83,7 @@ def dashboard_receita():
 st.set_page_config(page_title="Data-Barber CRM", layout="wide")
 st.title("💈 Data-Barber - CRM para Barbearias")
 
-menu = ["Criar Cliente", "Listar Clientes", "Registrar Serviço", "Dashboard"]
+menu = ["Criar Cliente", "Listar Clientes", "Remover Cliente", "Registrar Serviço", "Dashboard"]
 choice = st.sidebar.selectbox("Menu", menu)
 
 # ------------------------------
@@ -84,6 +110,21 @@ elif choice == "Listar Clientes":
     st.dataframe(df)
 
 # ------------------------------
+# Remover Cliente
+# ------------------------------
+elif choice == "Remover Cliente":
+    st.subheader("🗑️ Remover Cliente")
+    cursor.execute("SELECT id, nome FROM clientes")
+    clientes = cursor.fetchall()
+    if clientes:
+        clientes_dict = {f"{c[1]} (ID:{c[0]})": c[0] for c in clientes}
+        cliente_selecionado = st.selectbox("Selecione o cliente para remover", list(clientes_dict.keys()))
+        if st.button("Remover"):
+            remover_cliente(clientes_dict[cliente_selecionado])
+    else:
+        st.info("Nenhum cliente cadastrado.")
+
+# ------------------------------
 # Registrar Serviço
 # ------------------------------
 elif choice == "Registrar Serviço":
@@ -108,6 +149,13 @@ elif choice == "Registrar Serviço":
 # ------------------------------
 elif choice == "Dashboard":
     st.subheader("📊 Dashboard de Receita e Serviços")
-    dashboard_receita()
-   
 
+    # Filtro de datas
+    col1, col2 = st.columns(2)
+    with col1:
+        data_inicio = st.date_input("Data inicial", value=date(2025,1,1))
+    with col2:
+        data_fim = st.date_input("Data final", value=date.today())
+
+    if st.button("Gerar Dashboard"):
+        dashboard_receita(str(data_inicio), str(data_fim))
