@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 conexao = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="QPOLMNio889*ç",   # coloque sua senha
+    password="minhasenha",   # coloque sua senha
     database="barbearia"
 )
 
@@ -110,3 +110,4 @@ elif choice == "Dashboard":
     st.subheader("📊 Dashboard de Receita e Serviços")
     dashboard_receita()
    
+
