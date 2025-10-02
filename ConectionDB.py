@@ -2,7 +2,7 @@ import mysql.connector
 conexao = mysql.connector.connect(
     host="localhost",      # servidor
     user="root",           # usuário do MySQL
-    password="QPOLMNio889*ç",  # senha do MySQL
+    password="minhasenha",  # senha do MySQL
     database="barbearia"     # nome do banco que você criou
 )
 cursor = conexao.cursor()
@@ -33,5 +33,6 @@ CREATE TABLE IF NOT EXISTS agendamentos (
     FOREIGN KEY (servico_id) REFERENCES servicos(id);
 """)
 print("✅ Conectado e tabela criada (se não existia).")
+
 
 
