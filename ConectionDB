@@ -1,0 +1,10 @@
+import mysql.connector
+conexao = mysql.connector.connect(
+    host="localhost",      # servidor
+    user="root",           # usuário do MySQL
+    password="QPOLMNio889*ç",  # senha do MySQL
+    database="barbearia"     # nome do banco que você criou
+)
+cursor = conexao.cursor()
+cursor.execute
+print("✅ Conectado e tabela criada (se não existia).")
