@@ -30,8 +30,8 @@ CREATE TABLE IF NOT EXISTS agendamentos (
     servico_id INT,
     data DATE,
     FOREIGN KEY (cliente_id) REFERENCES clientes(id),
-    FOREIGN KEY (servico_id) REFERENCES servicos(id)
-);
-
+    FOREIGN KEY (servico_id) REFERENCES servicos(id);
+""")
 print("✅ Conectado e tabela criada (se não existia).")
+
 
