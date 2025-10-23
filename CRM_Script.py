@@ -23,12 +23,6 @@ def cadastrar_cliente(nome, telefone):
     conexao.commit()
     st.success(f"✅ Cliente {nome} cadastrado com sucesso!")
 
-def remover_cliente(cliente_id):
-    sql = "DELETE FROM clientes WHERE id = %s"
-    cursor.execute(sql, (cliente_id,))
-    conexao.commit()
-    st.success(f"🗑️ Cliente removido com sucesso!")
-
 def agendar_servico(cliente_id, servico_id, data):
     sql = "INSERT INTO agendamentos (cliente_id, servico_id, data) VALUES (%s, %s, %s)"
     cursor.execute(sql, (cliente_id, servico_id, data))
@@ -83,7 +77,7 @@ def dashboard_receita(data_inicio, data_fim):
 st.set_page_config(page_title="Data-Barber CRM", layout="wide")
 st.title("💈 Data-Barber - CRM para Barbearias")
 
-menu = ["Criar Cliente", "Listar Clientes", "Remover Cliente", "Registrar Serviço", "Dashboard"]
+menu = ["Criar Cliente", "Listar Clientes", "Registrar Serviço", "Dashboard"]
 choice = st.sidebar.selectbox("Menu", menu)
 
 # ------------------------------
@@ -110,21 +104,6 @@ elif choice == "Listar Clientes":
     st.dataframe(df)
 
 # ------------------------------
-# Remover Cliente
-# ------------------------------
-elif choice == "Remover Cliente":
-    st.subheader("🗑️ Remover Cliente")
-    cursor.execute("SELECT id, nome FROM clientes")
-    clientes = cursor.fetchall()
-    if clientes:
-        clientes_dict = {f"{c[1]} (ID:{c[0]})": c[0] for c in clientes}
-        cliente_selecionado = st.selectbox("Selecione o cliente para remover", list(clientes_dict.keys()))
-        if st.button("Remover"):
-            remover_cliente(clientes_dict[cliente_selecionado])
-    else:
-        st.info("Nenhum cliente cadastrado.")
-
-# ------------------------------
 # Registrar Serviço
 # ------------------------------
 elif choice == "Registrar Serviço":
@@ -144,9 +123,7 @@ elif choice == "Registrar Serviço":
     if st.button("Agendar"):
         agendar_servico(clientes_dict[cliente_selecionado], servicos_dict[servico_selecionado], str(data))
 
-# ------------------------------
 # Dashboard
-# ------------------------------
 elif choice == "Dashboard":
     st.subheader("📊 Dashboard de Receita e Serviços")
 
