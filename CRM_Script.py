@@ -1,138 +1,138 @@
-import streamlit as st
-import pandas as pd
 import mysql.connector
-import matplotlib.pyplot as plt
-from datetime import date
 
-# Conexão com MySQL
 conexao = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="admin",   # coloque sua senha
-    database="barbearia"
+    password="admin"
 )
 
 cursor = conexao.cursor()
+cursor.execute("CREATE DATABASE IF NOT EXISTS barbearia_crm")
+cursor.close()
+conexao.close()
 
-# ------------------------------
-# Funções CRUD
-# ------------------------------
-def cadastrar_cliente(nome, telefone):
-    sql = "INSERT INTO clientes (nome, telefone) VALUES (%s, %s)"
-    cursor.execute(sql, (nome, telefone))
-    conexao.commit()
-    st.success(f"✅ Cliente {nome} cadastrado com sucesso!")
+# Conectar ao banco
+conexao = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="admin",
+    database="barbearia_crm"
+)
+cursor = conexao.cursor()
 
-def agendar_servico(cliente_id, servico_id, data):
-    sql = "INSERT INTO agendamentos (cliente_id, servico_id, data) VALUES (%s, %s, %s)"
-    cursor.execute(sql, (cliente_id, servico_id, data))
-    conexao.commit()
-    st.success("📅 Agendamento realizado com sucesso!")
+# --- Tabelas principais ---
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS clientes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    telefone VARCHAR(20),
+    email VARCHAR(100),
+    data_cadastro DATE
+)
+""")
 
-def dashboard_receita(data_inicio, data_fim):
-    sql = """
-    SELECT s.nome, COUNT(a.id) AS qtd, SUM(s.preco) AS receita
-    FROM agendamentos a
-    JOIN servicos s ON a.servico_id = s.id
-    WHERE a.data BETWEEN %s AND %s
-    GROUP BY s.id
-    """
-    cursor.execute(sql, (data_inicio, data_fim))
-    resultados = cursor.fetchall()
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS funcionarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    cargo VARCHAR(50),
+    telefone VARCHAR(20),
+    salario DECIMAL(10,2)
+)
+""")
 
-    if resultados:
-        servicos = [r[0] for r in resultados]
-        qtd = [r[1] for r in resultados]
-        receita = [float(r[2]) for r in resultados]
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS servicos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    preco DECIMAL(10,2) NOT NULL,
+    duracao_min INT
+)
+""")
 
-        # Estilo mais bonito
-        plt.style.use("seaborn-v0_8")
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS produtos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    preco DECIMAL(10,2),
+    quantidade_estoque INT
+)
+""")
 
-        # Gráfico de quantidade de serviços
-        fig1, ax1 = plt.subplots(figsize=(5,3))
-        ax1.bar(servicos, qtd)
-        ax1.set_title("📊 Serviços mais realizados", fontsize=12, fontweight="bold")
-        ax1.set_ylabel("Quantidade")
-        st.pyplot(fig1)
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS agendamentos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cliente_id INT,
+    funcionario_id INT,
+    servico_id INT,
+    data DATETIME,
+    status VARCHAR(20) DEFAULT 'Pendente',
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id),
+    FOREIGN KEY (funcionario_id) REFERENCES funcionarios(id),
+    FOREIGN KEY (servico_id) REFERENCES servicos(id)
+)
+""")
 
-        # Gráfico de receita por serviço
-        fig2, ax2 = plt.subplots(figsize=(5,3))
-        ax2.bar(servicos, receita)
-        ax2.set_title("💰 Receita por Serviço", fontsize=12, fontweight="bold")
-        ax2.set_ylabel("R$ Receita")
-        st.pyplot(fig2)
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS vendas_produtos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cliente_id INT,
+    produto_id INT,
+    quantidade INT,
+    data_venda DATE,
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id),
+    FOREIGN KEY (produto_id) REFERENCES produtos(id)
+)
+""")
 
-        # Gráfico de Pizza (percentual de serviços)
-        fig3, ax3 = plt.subplots(figsize=(4,4))
-        ax3.pie(qtd, labels=servicos, autopct='%1.1f%%', startangle=90)
-        ax3.set_title("📌 Participação de cada serviço", fontsize=12, fontweight="bold")
-        st.pyplot(fig3)
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS pagamentos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    agendamento_id INT,
+    valor DECIMAL(10,2),
+    forma_pagamento VARCHAR(50),
+    data_pagamento DATE,
+    FOREIGN KEY (agendamento_id) REFERENCES agendamentos(id)
+)
+""")
 
-    else:
-        st.info("Nenhum agendamento encontrado nesse período.")
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS avaliacoes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cliente_id INT,
+    funcionario_id INT,
+    nota INT CHECK (nota BETWEEN 1 AND 5),
+    comentario TEXT,
+    data_avaliacao DATE,
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id),
+    FOREIGN KEY (funcionario_id) REFERENCES funcionarios(id)
+)
+""")
 
-# ------------------------------
-# Layout da aplicação
-# ------------------------------
-st.set_page_config(page_title="Data-Barber CRM", layout="wide")
-st.title("💈 Data-Barber - CRM para Barbearias")
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS estoque_movimentacoes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    produto_id INT,
+    tipo VARCHAR(10),  -- 'entrada' ou 'saida'
+    quantidade INT,
+    data_movimentacao DATE,
+    FOREIGN KEY (produto_id) REFERENCES produtos(id)
+)
+""")
 
-menu = ["Criar Cliente", "Listar Clientes", "Registrar Serviço", "Dashboard"]
-choice = st.sidebar.selectbox("Menu", menu)
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS campanhas_marketing (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100),
+    descricao TEXT,
+    data_inicio DATE,
+    data_fim DATE,
+    investimento DECIMAL(10,2)
+)
+""")
 
-# ------------------------------
-# Criar Cliente
-# ------------------------------
-if choice == "Criar Cliente":
-    st.subheader("🧑‍💼 Cadastrar Novo Cliente")
-    nome = st.text_input("Nome")
-    telefone = st.text_input("Telefone")
-    if st.button("Criar"):
-        if nome and telefone:
-            cadastrar_cliente(nome, telefone)
-        else:
-            st.warning("Preencha todos os campos!")
+conexao.commit()
+cursor.close()
+conexao.close()
 
-# ------------------------------
-# Listar Clientes
-# ------------------------------
-elif choice == "Listar Clientes":
-    st.subheader("📋 Lista de Clientes")
-    cursor.execute("SELECT id, nome, telefone FROM clientes")
-    clientes = cursor.fetchall()
-    df = pd.DataFrame(clientes, columns=["ID", "Nome", "Telefone"])
-    st.dataframe(df)
-
-# ------------------------------
-# Registrar Serviço
-# ------------------------------
-elif choice == "Registrar Serviço":
-    st.subheader("✂️ Registrar Agendamento")
-    cursor.execute("SELECT id, nome FROM clientes")
-    clientes = cursor.fetchall()
-    clientes_dict = {f"{c[1]} (ID:{c[0]})": c[0] for c in clientes}
-
-    cursor.execute("SELECT id, nome, preco FROM servicos")
-    servicos = cursor.fetchall()
-    servicos_dict = {f"{s[1]} - R${s[2]} (ID:{s[0]})": s[0] for s in servicos}
-
-    cliente_selecionado = st.selectbox("Cliente", list(clientes_dict.keys()))
-    servico_selecionado = st.selectbox("Serviço", list(servicos_dict.keys()))
-    data = st.date_input("Data do Agendamento")
-
-    if st.button("Agendar"):
-        agendar_servico(clientes_dict[cliente_selecionado], servicos_dict[servico_selecionado], str(data))
-
-# Dashboard
-elif choice == "Dashboard":
-    st.subheader("📊 Dashboard de Receita e Serviços")
-
-    # Filtro de datas
-    col1, col2 = st.columns(2)
-    with col1:
-        data_inicio = st.date_input("Data inicial", value=date(2025,1,1))
-    with col2:
-        data_fim = st.date_input("Data final", value=date.today())
-
-    if st.button("Gerar Dashboard"):
-        dashboard_receita(str(data_inicio), str(data_fim))
+print("✅ Banco de dados 'barbearia_crm' e tabelas criadas com sucesso!")
