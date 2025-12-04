@@ -19,3 +19,6 @@ Para rodar a nossa API, você deve seguir os seguintes passos:
    http://127.0.0.1:8000/docs
 
    A API Data-Barber é responsável por toda comunicação entre o sistema CRM e o banco de dados, oferecendo rotas simples e organizadas para gerenciar clientes, barbeiros, serviços, vendas e agendamentos.
+
+   Exemplos de Requisições:
+   
