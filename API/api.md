@@ -21,4 +21,18 @@ Para rodar a nossa API, você deve seguir os seguintes passos:
    A API Data-Barber é responsável por toda comunicação entre o sistema CRM e o banco de dados, oferecendo rotas simples e organizadas para gerenciar clientes, barbeiros, serviços, vendas e agendamentos.
 
    Exemplos de Requisições:
+
+   {
+  "nome": "Matheus Pereira",
+  "telefone": "1197777-2222",
+  "email": "matheus@gmail.com"
+}
+
+   Exemplo de Respostas:
+
+   {
+  "id": 3,
+  "mensagem": "Cliente cadastrado com sucesso"
+}
+
    
