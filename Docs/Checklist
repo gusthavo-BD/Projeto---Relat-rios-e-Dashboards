@@ -1,0 +1,138 @@
+# Checklist de Funcionalidades – Data-Barber CRM
+
+Este documento lista todas as funcionalidades implementadas no sistema **Data-Barber CRM**, conforme o script fornecido.
+
+---
+
+##  Autenticação
+- [x] Tela de login
+- [x] Validação básica de usuário e senha (`admin` / `admin`)
+- [x] Controle de sessão com `st.session_state`
+- [x] Redirecionamento automático após login
+
+---
+
+##  Banco de Dados (MySQL)
+- [x] Conexão automática com MySQL
+- [x] Criação automática do banco `barbearia` caso não exista
+- [x] Criação automática de todas as tabelas:
+  - [x] `clientes`
+  - [x] `clientes_enderecos`
+  - [x] `categorias_servico`
+  - [x] `servicos`
+  - [x] `funcionarios`
+  - [x] `horarios_funcionario`
+  - [x] `agendamentos`
+  - [x] `agendamento_itens`
+  - [x] `produtos`
+  - [x] `estoque`
+  - [x] `fornecedores`
+  - [x] `compras`
+  - [x] `compras_itens`
+  - [x] `vendas`
+  - [x] `feedbacks`
+  - [x] `promocoes`
+
+---
+
+## 🧑‍💼 Clientes
+- [x] Cadastro de novos clientes
+- [x] Campos: nome, telefone, e-mail, observações
+- [x] Data de cadastro automática
+- [x] Listagem completa de clientes
+- [x] Exibição em tabela com DataFrame
+
+---
+
+##  Serviços
+- [x] Cadastro de categorias de serviço
+- [x] Cadastro de serviços com:
+  - nome  
+  - preço  
+  - duração  
+  - categoria  
+  - descrição  
+- [x] Listagem completa dos serviços
+- [x] Associação entre serviços e categorias
+
+---
+
+##  Funcionários
+- [x] Cadastro de funcionários
+- [x] Campos: nome, cargo, telefone, e-mail
+- [x] Listagem de funcionários ativos
+
+---
+
+##  Produtos e Estoque
+- [x] Cadastro de produtos
+- [x] Registro automático no estoque
+- [x] Controle de preço de venda e compra
+- [x] Unidade do produto (ex: un, ml)
+- [x] Visualização do estoque (quantidade atual)
+
+---
+
+##  Agendamentos
+- [x] Seleção de cliente
+- [x] Seleção de funcionário (opcional)
+- [x] Seleção de múltiplos serviços
+- [x] Cálculo automático do valor total
+- [x] Registro de observações
+- [x] Registro da data e hora
+- [x] Listagem de agendamentos por período
+- [x] Exibição em DataFrame
+
+---
+
+## 💳 Vendas e Pagamentos
+- [x] Registro de venda vinculada a agendamento ou cliente
+- [x] Captura do valor total
+- [x] Seleção da forma de pagamento:
+  - dinheiro  
+  - cartão  
+  - pix  
+  - parcelado  
+  - outros  
+- [x] Armazenamento em tabela própria (`vendas`)
+
+---
+
+##  Promoções
+- [x] Cadastro de promoções
+- [x] Campos: título, desconto, data início, data fim, descrição
+- [x] Controle de promoções ativas
+
+---
+
+##  Feedbacks
+- [x] Registro de feedback de cliente
+- [x] Nota de avaliação (1 a 5)
+- [x] Comentário opcional
+- [x] Associação com agendamento
+
+---
+
+##  Dashboard (visual/análise)
+- [x] Suporte a gráficos com Matplotlib
+- [ ] (opcional) Implementar gráficos avançados no futuro
+
+---
+
+##  Funcionalidades Gerais
+- [x] Interface em abas e menus laterais
+- [x] Tratamento básico de erros
+- [x] Organização estruturada em CRUDs
+- [x] Atualização automática do total de agendamentos
+- [x] Uso de DataFrames para visualização de dados
+
+---
+
+##  Funcionalidades Futuras (sugestões)
+- [ ] Edição de dados (clientes, serviços, funcionários, etc.)
+- [ ] Exclusão de registros
+- [ ] Controle de permissões de usuários
+- [ ] Integração com WhatsApp e SMS para lembretes
+- [ ] Módulo financeiro completo
+- [ ] Relatórios exportáveis em PDF
+
